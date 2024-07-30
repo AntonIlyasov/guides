@@ -1,0 +1,66 @@
+Создание образа меньшего размера c CD карты с несколькими разделами.
+
+1. Редактируем через GParted размеры разделов на самой CD карте, под нужный размер.
+2. В результате редактирования размеров разделов, должна появиться неразмеченная область в конце 
+CD диска.
+3. Делаем побитовое копирование образа с CD карты на ноутбук:
+dd if=/dev/sda of=tab_act_src.img
+4. Делаем копию образа tab_act_src.img в tab_act.img
+5. Проверяем номер блока, где заканчивается размеченная память под END с помощью команды
+fdisk -l tab_act.img
+Пример вывода:
+
+Disk tab_act.img: 29,12 GiB, 31271157760 bytes, 61076480 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: 3E42E861-7204-45EE-AA8E-3C5CCB5E597B
+
+Device         Start      End  Sectors  Size Type
+tab_act.img1   61440  2158591  2097152    1G Linux extended boot
+tab_act.img2 2158592 42459135 40300544 19,2G Linux filesystem
+
+6. Вводим команду:
+truncate --size=$[(42459135+1+33)*512] tab_act.img
+, где 42459135 - номер конца блока выделенной памяти (у вас он может различаться).
+7. Создаем устройство /dev/loop0 который представляет myimage.img
+sudo losetup -fP tab_act.img
+8. Узнать, какое loop устройство было создано:
+losetup -l
+9. Запускаем gdisk для изменения размера раздела:
+sudo gdisk /dev/loop15
+10. Нажмите p, w для записи изменений и выхода.
+11. Удалить loop устройство:
+sudo losetup -d /dev/loop15
+13. Проверяем, что разметка дисков в образе сохранена согласно с исходным образом.
+Пример вывода:
+fdisk -l tab_act_src.img
+
+Disk tab_act_src.img: 29,12 GiB, 31271157760 bytes, 61076480 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: 3E42E861-7204-45EE-AA8E-3C5CCB5E597B
+
+Device             Start      End  Sectors  Size Type
+tab_act_src.img1   61440  2158591  2097152    1G Linux extended boot
+tab_act_src.img2 2158592 42459135 40300544 19,2G Linux filesystem
+
+fdisk -l tab_act.img
+
+Disk tab_act.img: 20,25 GiB, 21739094528 bytes, 42459169 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: 3E42E861-7204-45EE-AA8E-3C5CCB5E597B
+
+Device         Start      End  Sectors  Size Type
+tab_act.img1   61440  2158591  2097152    1G Linux extended boot
+tab_act.img2 2158592 42459135 40300544 19,2G Linux filesystem
+
+12. Обрезанный (уменьшенный образ готов).
+13. Архивируем полученный образ.
+gzip -k tab_act.img
