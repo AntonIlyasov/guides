@@ -1,0 +1,127 @@
+находится в папке /home/anton202/devlab/imu vn-100s/vnproglib/cpp/examples/getting_started/easy_plot_test
+
+структура этой папки
+
+├── build
+│   ├── CMakeCache.txt
+│   ├── CMakeFiles
+│   │   ├── 3.22.1
+│   │   │   ├── CMakeCCompiler.cmake
+│   │   │   ├── CMakeCXXCompiler.cmake
+│   │   │   ├── CMakeDetermineCompilerABI_C.bin
+│   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │   │   ├── CMakeSystem.cmake
+│   │   │   ├── CompilerIdC
+│   │   │   │   ├── a.out
+│   │   │   │   ├── CMakeCCompilerId.c
+│   │   │   │   └── tmp
+│   │   │   └── CompilerIdCXX
+│   │   │       ├── a.out
+│   │   │       ├── CMakeCXXCompilerId.cpp
+│   │   │       └── tmp
+│   │   ├── cmake.check_cache
+│   │   ├── CMakeDirectoryInformation.cmake
+│   │   ├── CMakeOutput.log
+│   │   ├── CMakeTmp
+│   │   ├── easy_plot_test.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── main.cpp.o
+│   │   │   ├── main.cpp.o.d
+│   │   │   └── progress.make
+│   │   ├── Makefile2
+│   │   ├── Makefile.cmake
+│   │   ├── progress.marks
+│   │   └── TargetDirectories.txt
+│   ├── cmake_install.cmake
+│   ├── easy_plot_cpp
+│   │   ├── CMakeFiles
+│   │   │   ├── CMakeDirectoryInformation.cmake
+│   │   │   └── progress.marks
+│   │   ├── cmake_install.cmake
+│   │   └── Makefile
+│   ├── easy_plot_test
+│   └── Makefile
+├── CMakeLists.txt
+├── easy_plot_cpp
+│   ├── CMakeLists.txt
+│   ├── code_blocks
+│   │   └── example_opengl
+│   │       ├── example_opengl.cbp
+│   │       └── main.cpp
+│   ├── img
+│   │   ├── example_0.png
+│   │   ├── example_1.png
+│   │   ├── example_2.png
+│   │   ├── example_heat_map_2.png
+│   │   ├── example_heat_map.png
+│   │   ├── example_monochrome_image.png
+│   │   ├── logo-1280-640.pdn
+│   │   └── logo-1280-640.png
+│   ├── include
+│   │   ├── easy_plot.hpp
+│   │   ├── main
+│   │   │   ├── easy_plot_common.hpp
+│   │   │   ├── easy_plot_draw.hpp
+│   │   │   ├── easy_plot_line_spec.hpp
+│   │   │   └── easy_plot_window_spec.hpp
+│   │   └── utility
+│   │       ├── easy_plot_hsv_to_rgb.hpp
+│   │       └── easy_plot_screenshot.hpp
+│   ├── lib
+│   │   └── gl2ps
+│   ├── LICENSE
+│   └── README.md
+└── main.cpp
+
+сореожимое корневого CMakeLists.txt
+
+cmake_minimum_required(VERSION 3.0)
+project(easy_plot_test)
+
+# Set policy CMP0072 to suppress the OpenGL warning
+if(POLICY CMP0072)
+  cmake_policy(SET CMP0072 NEW)
+endif()
+
+# Find OpenGL
+find_package(OpenGL REQUIRED)
+
+# Find GLUT
+find_package(GLUT REQUIRED)
+
+# Include directories
+include_directories(${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
+
+# Your source files
+set(SOURCES main.cpp)
+
+# Добавьте поддиректорию внешней библиотеки
+add_subdirectory(easy_plot_cpp)
+
+# Add executable
+add_executable(easy_plot_test ${SOURCES})
+
+# Подключите внешнюю библиотеку к вашему проекту
+target_link_libraries(easy_plot_test PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+target_link_libraries(easy_plot_test PRIVATE easy_plot_cpp_lib)
+
+содержимое easy_plot_cpp/CMakeLists.txt
+
+# Укажите имя проекта
+project(easy_plot_cpp)
+
+# Укажите минимальную требуемую версию CMake
+cmake_minimum_required(VERSION 3.2)
+
+# Создайте интерфейсную библиотеку
+add_library(easy_plot_cpp_lib INTERFACE)
+
+# Добавьте директорию с заголовочными файлами
+target_include_directories(easy_plot_cpp_lib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
